@@ -140,8 +140,8 @@ export default function Controls({ config, onChange }) {
       <Stepper
         label="Rest Length"
         value={config.restSeconds}
-        step={30}
-        stepLabel="30s"
+        step={10}
+        stepLabel="10s"
         min={0}
         format={formatDuration}
         onChange={(value) => update('restSeconds', value)}
