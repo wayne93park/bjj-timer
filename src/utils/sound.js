@@ -3,6 +3,7 @@ import airHornUrl from '../assets/air_horn.mp3'
 import clapUrl from '../assets/clap.mp3'
 
 let audioCtx = null
+const bufferCache = new Map()
 
 function getAudioContext() {
   if (!audioCtx) {
@@ -12,6 +13,43 @@ function getAudioContext() {
     audioCtx.resume().catch(() => {})
   }
   return audioCtx
+}
+
+function loadBuffer(url) {
+  if (bufferCache.has(url)) return bufferCache.get(url)
+  const ctx = getAudioContext()
+  const promise = fetch(url)
+    .then((res) => res.arrayBuffer())
+    .then((data) => ctx.decodeAudioData(data))
+    .catch(() => null)
+  bufferCache.set(url, promise)
+  return promise
+}
+
+// Mobile browsers (notably iOS Safari) require every <audio> playback to be
+// tied to a direct user gesture, so it silently blocks sounds fired from a
+// timer tick. Playing through Web Audio buffer sources on a single shared
+// AudioContext avoids that: once the context is unlocked by the first tap
+// (Start button), it stays unlocked for all later scheduled playback.
+function playBuffer(url, maxDuration) {
+  const ctx = getAudioContext()
+  loadBuffer(url).then((buffer) => {
+    if (!buffer) return
+    const source = ctx.createBufferSource()
+    source.buffer = buffer
+    source.connect(ctx.destination)
+    if (maxDuration) {
+      source.start(0, 0, Math.min(maxDuration, buffer.duration))
+    } else {
+      source.start(0)
+    }
+  })
+}
+
+export function preloadSounds() {
+  loadBuffer(bellUrl)
+  loadBuffer(airHornUrl)
+  loadBuffer(clapUrl)
 }
 
 function playTone(frequency, duration, type = 'sine', delay = 0) {
@@ -48,20 +86,14 @@ export const TIME_UP_SOUND_OPTIONS = [
   { id: 'none', label: 'No Sound' },
 ]
 
-const TIME_UP_MAX_DURATION_MS = 2800
+const TIME_UP_MAX_DURATION_SEC = 2.8
 
 export function playTimeUpSound(soundId) {
   if (soundId === 'none') return
   const url = TIME_UP_SOUNDS[soundId] || TIME_UP_SOUNDS.bell
-  const audio = new Audio(url)
-  audio.play().catch(() => {})
-  setTimeout(() => {
-    audio.pause()
-    audio.currentTime = 0
-  }, TIME_UP_MAX_DURATION_MS)
+  playBuffer(url, TIME_UP_MAX_DURATION_SEC)
 }
 
 export function playHeadsUpSound() {
-  const audio = new Audio(clapUrl)
-  audio.play().catch(() => {})
+  playBuffer(clapUrl)
 }

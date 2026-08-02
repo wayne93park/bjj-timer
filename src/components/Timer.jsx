@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useRef, useState } from 'react'
 import Controls from './Controls'
-import { playCountdownBeep, playTimeUpSound, playHeadsUpSound } from '../utils/sound'
+import { playCountdownBeep, playTimeUpSound, playHeadsUpSound, preloadSounds } from '../utils/sound'
 import { loadConfig, saveConfig } from '../utils/settings'
 import { useWakeLock } from '../hooks/useWakeLock'
 
@@ -113,6 +113,10 @@ export default function Timer() {
   const [flashNonce, setFlashNonce] = useState(0)
 
   useWakeLock(state.isRunning && state.config.keepScreenOn)
+
+  useEffect(() => {
+    preloadSounds()
+  }, [])
 
   useEffect(() => {
     saveConfig(state.config)
