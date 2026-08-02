@@ -58,11 +58,13 @@
   justify-content: center;
   padding: 1rem;
   overflow: auto;
+  container-type: inline-size;
 }
 
 .timer {
   position: relative;
-  width: 100%;
+  width: 90%;
+  max-width: 640px;
   min-height: 100%;
   display: flex;
   flex-direction: column;
@@ -72,7 +74,12 @@
   padding: 1.5rem;
   border-radius: 1rem;
   background: var(--panel);
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, width 0.2s ease, max-width 0.2s ease;
+}
+
+.timer.is-running {
+  width: 100%;
+  max-width: none;
 }
 
 .flash-overlay {
@@ -107,34 +114,34 @@
 }
 
 .timer-phase {
-  font-size: clamp(1.5rem, min(3vh, 8vw), 2.5rem);
+  font-size: clamp(1.5rem, min(3vh, 8cqw), 2.5rem);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .timer-display {
-  font-size: clamp(4rem, min(26vh, 22vw), 18rem);
+  font-size: clamp(4rem, min(26vh, 22cqw), 18rem);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
 .timer-round {
-  font-size: clamp(1.1rem, min(2.5vh, 6vw), 1.75rem);
+  font-size: clamp(1.1rem, min(2.5vh, 6cqw), 1.75rem);
   color: var(--muted);
 }
 
 .timer.is-running .timer-phase {
-  font-size: clamp(2rem, min(5vh, 10vw), 3.5rem);
+  font-size: clamp(2rem, min(5vh, 10cqw), 3.5rem);
 }
 
 .timer.is-running .timer-display {
-  font-size: clamp(4rem, min(40vh, 26vw), 26rem);
+  font-size: clamp(4rem, min(40vh, 26cqw), 26rem);
 }
 
 .timer.is-running .timer-round {
-  font-size: clamp(1.3rem, min(3vh, 7vw), 2.25rem);
+  font-size: clamp(1.3rem, min(3vh, 7cqw), 2.25rem);
 }
 
 .timer-buttons {
@@ -178,10 +185,6 @@
   font-size: 0.85rem;
   color: var(--muted);
   gap: 0.25rem;
-  width: 100%;
-}
-
-.controls-row input[type='number'] {
   width: 100%;
 }
 
@@ -330,11 +333,11 @@ select:disabled {
   }
 
   .timer-display {
-    font-size: clamp(3rem, min(20vh, 16vw), 10rem);
+    font-size: clamp(3rem, min(20vh, 16cqw), 10rem);
   }
 
   .timer.is-running .timer-display {
-    font-size: clamp(3rem, min(28vh, 20vw), 14rem);
+    font-size: clamp(3rem, min(28vh, 20cqw), 14rem);
   }
 
   .timer-buttons button {

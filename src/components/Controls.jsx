@@ -1,29 +1,23 @@
 import { useState } from 'react'
 import { TIME_UP_SOUND_OPTIONS, playTimeUpSound, playHeadsUpSound } from '../utils/sound'
 
-const STEP_SECONDS = 30
-
 function formatDuration(totalSeconds) {
   const m = Math.floor(totalSeconds / 60)
   const s = totalSeconds % 60
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
-function DurationStepper({ label, seconds, min, disabled, onChange }) {
+function Stepper({ label, value, step, stepLabel, min, format, disabled, onChange }) {
   return (
     <div className="stepper">
       <span className="stepper-label">{label}</span>
       <div className="stepper-control">
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={() => onChange(Math.max(min, seconds - STEP_SECONDS))}
-        >
-          − 30s
+        <button type="button" disabled={disabled} onClick={() => onChange(Math.max(min, value - step))}>
+          − {stepLabel}
         </button>
-        <span className="stepper-value">{formatDuration(seconds)}</span>
-        <button type="button" disabled={disabled} onClick={() => onChange(seconds + STEP_SECONDS)}>
-          + 30s
+        <span className="stepper-value">{format ? format(value) : value}</span>
+        <button type="button" disabled={disabled} onClick={() => onChange(value + step)}>
+          + {stepLabel}
         </button>
       </div>
     </div>
@@ -40,33 +34,38 @@ export default function Controls({ config, onChange, disabled }) {
   return (
     <div className="controls">
       <div className="controls-row">
-        <DurationStepper
+        <Stepper
           label="Round Length"
-          seconds={config.roundSeconds}
-          min={STEP_SECONDS}
+          value={config.roundSeconds}
+          step={30}
+          stepLabel="30s"
+          min={30}
+          format={formatDuration}
           disabled={disabled}
           onChange={(value) => update('roundSeconds', value)}
         />
-        <DurationStepper
+        <Stepper
           label="Rest Length"
-          seconds={config.restSeconds}
+          value={config.restSeconds}
+          step={30}
+          stepLabel="30s"
           min={0}
+          format={formatDuration}
           disabled={disabled}
           onChange={(value) => update('restSeconds', value)}
+        />
+        <Stepper
+          label="Rounds"
+          value={config.rounds}
+          step={1}
+          stepLabel="1"
+          min={1}
+          disabled={disabled}
+          onChange={(value) => update('rounds', value)}
         />
       </div>
 
       <div className="controls-row">
-        <label>
-          Rounds
-          <input
-            type="number"
-            min="1"
-            value={config.rounds}
-            disabled={disabled}
-            onChange={(e) => update('rounds', Math.max(1, Number(e.target.value) || 1))}
-          />
-        </label>
         <button type="button" className="settings-toggle" onClick={() => setShowSettings((s) => !s)}>
           ⚙ Settings
         </button>
