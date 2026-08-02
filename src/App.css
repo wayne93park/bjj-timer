@@ -1,0 +1,278 @@
+.app {
+  height: 100%;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+.sidebar {
+  flex-shrink: 0;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1.5rem 1rem;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+}
+
+.gym-logo {
+  width: 100%;
+  max-width: 160px;
+  height: auto;
+}
+
+.clock {
+  text-align: center;
+}
+
+.clock-time {
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock-date {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow: auto;
+}
+
+.timer {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: var(--panel);
+  transition: background-color 0.2s ease;
+}
+
+.flash-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  animation: flash-pulse 0.5s ease-out;
+}
+
+@keyframes flash-pulse {
+  0% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.timer.phase-round {
+  background: var(--panel-round);
+}
+
+.timer.phase-rest {
+  background: var(--panel-rest);
+}
+
+.timer.phase-finished {
+  background: var(--panel-finished);
+}
+
+.timer-phase {
+  font-size: clamp(1.5rem, 3vh, 2.5rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.timer-display {
+  font-size: clamp(6rem, 26vh, 18rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.timer-round {
+  font-size: clamp(1.1rem, 2.5vh, 1.75rem);
+  color: var(--muted);
+}
+
+.timer.is-running .timer-phase {
+  font-size: clamp(2rem, 5vh, 3.5rem);
+}
+
+.timer.is-running .timer-display {
+  font-size: clamp(8rem, 40vh, 26rem);
+}
+
+.timer.is-running .timer-round {
+  font-size: clamp(1.3rem, 3vh, 2.25rem);
+}
+
+.timer-buttons {
+  display: flex;
+  gap: 1rem;
+  margin: 0.5rem 0;
+}
+
+.timer-buttons button {
+  font-size: 1.25rem;
+  padding: 1rem 2.5rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  background: var(--accent);
+  color: #08110d;
+  font-weight: 600;
+}
+
+.timer-buttons button:active {
+  transform: scale(0.97);
+}
+
+.controls {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.controls-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.controls-row label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+  color: var(--muted);
+  gap: 0.25rem;
+}
+
+.controls-row input[type='number'] {
+  width: 4.5rem;
+}
+
+.controls-row input,
+.controls-row select,
+.controls-row button {
+  font-size: 1rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: inherit;
+}
+
+.checkbox-label {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.5rem !important;
+  cursor: pointer;
+}
+
+.checkbox-label input[type='checkbox'] {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.preview-button {
+  cursor: pointer;
+  background: var(--accent-muted);
+  border: none;
+}
+
+.stepper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stepper-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.stepper-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stepper-control button {
+  font-size: 0.9rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: inherit;
+  cursor: pointer;
+}
+
+.stepper-value {
+  min-width: 3.5rem;
+  text-align: center;
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+button:disabled,
+input:disabled,
+select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .app {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 1rem;
+  }
+
+  .gym-logo {
+    max-width: 70px;
+  }
+
+  .main {
+    padding: 1rem 0.5rem;
+  }
+}
