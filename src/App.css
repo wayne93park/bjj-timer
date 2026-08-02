@@ -98,34 +98,34 @@
 }
 
 .timer-phase {
-  font-size: clamp(1.5rem, 3vh, 2.5rem);
+  font-size: clamp(1.5rem, min(3vh, 8vw), 2.5rem);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .timer-display {
-  font-size: clamp(6rem, 26vh, 18rem);
+  font-size: clamp(4rem, min(26vh, 22vw), 18rem);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
 .timer-round {
-  font-size: clamp(1.1rem, 2.5vh, 1.75rem);
+  font-size: clamp(1.1rem, min(2.5vh, 6vw), 1.75rem);
   color: var(--muted);
 }
 
 .timer.is-running .timer-phase {
-  font-size: clamp(2rem, 5vh, 3.5rem);
+  font-size: clamp(2rem, min(5vh, 10vw), 3.5rem);
 }
 
 .timer.is-running .timer-display {
-  font-size: clamp(8rem, 40vh, 26rem);
+  font-size: clamp(4rem, min(40vh, 26vw), 26rem);
 }
 
 .timer.is-running .timer-round {
-  font-size: clamp(1.3rem, 3vh, 2.25rem);
+  font-size: clamp(1.3rem, min(3vh, 7vw), 2.25rem);
 }
 
 .timer-buttons {
