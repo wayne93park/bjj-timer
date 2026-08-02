@@ -7,6 +7,14 @@ const bufferCache = new Map()
 
 function getAudioContext() {
   if (!audioCtx) {
+    // iOS routes Web Audio through the ringer channel by default, so the
+    // hardware silent switch mutes the app entirely. Declaring a playback
+    // session opts out of that where the API is supported.
+    try {
+      if ('audioSession' in navigator) navigator.audioSession.type = 'playback'
+    } catch {
+      // not supported -- sound still works unless the phone is on silent
+    }
     audioCtx = new (window.AudioContext || window.webkitAudioContext)()
   }
   if (audioCtx.state === 'suspended') {

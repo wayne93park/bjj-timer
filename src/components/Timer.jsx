@@ -2,189 +2,121 @@ import { useEffect, useReducer, useRef, useState } from 'react'
 import Controls from './Controls'
 import { playCountdownBeep, playTimeUpSound, playHeadsUpSound, preloadSounds } from '../utils/sound'
 import { loadConfig, saveConfig } from '../utils/settings'
+import {
+  DEFAULT_CONFIG,
+  HEADS_UP_AT,
+  createInitialState,
+  formatClock,
+  reducer,
+} from '../utils/timerReducer'
 import { useWakeLock } from '../hooks/useWakeLock'
 
-const DEFAULT_CONFIG = {
-  roundSeconds: 300,
-  restSeconds: 60,
-  rounds: 6,
-  sound: 'bell',
-  headsUpEnabled: true,
-  keepScreenOn: true,
-}
-
-function createInitialState() {
-  const config = loadConfig(DEFAULT_CONFIG)
-  return {
-    phase: 'idle', // idle | round | rest | finished
-    currentRound: 1,
-    secondsLeft: config.roundSeconds,
-    isRunning: false,
-    transitionCount: 0,
-    config,
-  }
-}
-
-function reducer(state, action) {
-  switch (action.type) {
-    case 'SET_CONFIG': {
-      const config = action.config
-      if (state.phase !== 'idle') return { ...state, config }
-      return { ...state, config, secondsLeft: config.roundSeconds }
-    }
-    case 'START': {
-      if (state.phase === 'idle' || state.phase === 'finished') {
-        return {
-          ...state,
-          phase: 'round',
-          currentRound: 1,
-          secondsLeft: state.config.roundSeconds,
-          isRunning: true,
-          transitionCount: state.transitionCount + 1,
-        }
-      }
-      return { ...state, isRunning: true }
-    }
-    case 'PAUSE':
-      return { ...state, isRunning: false }
-    case 'RESET':
-      return {
-        ...state,
-        phase: 'idle',
-        currentRound: 1,
-        isRunning: false,
-        secondsLeft: state.config.roundSeconds,
-      }
-    case 'TICK': {
-      if (!state.isRunning) return state
-      const secondsLeft = state.secondsLeft - 1
-      if (secondsLeft > 0) return { ...state, secondsLeft }
-
-      if (state.phase === 'round') {
-        if (state.currentRound >= state.config.rounds) {
-          return {
-            ...state,
-            phase: 'finished',
-            isRunning: false,
-            secondsLeft: 0,
-            transitionCount: state.transitionCount + 1,
-          }
-        }
-        if (state.config.restSeconds > 0) {
-          return {
-            ...state,
-            phase: 'rest',
-            secondsLeft: state.config.restSeconds,
-            transitionCount: state.transitionCount + 1,
-          }
-        }
-        return {
-          ...state,
-          currentRound: state.currentRound + 1,
-          secondsLeft: state.config.roundSeconds,
-          transitionCount: state.transitionCount + 1,
-        }
-      }
-      if (state.phase === 'rest') {
-        return {
-          ...state,
-          phase: 'round',
-          currentRound: state.currentRound + 1,
-          secondsLeft: state.config.roundSeconds,
-          transitionCount: state.transitionCount + 1,
-        }
-      }
-      return state
-    }
-    default:
-      return state
-  }
-}
-
-function formatClock(totalSeconds) {
-  const m = Math.floor(totalSeconds / 60)
-  const s = totalSeconds % 60
-  return `${m}:${s.toString().padStart(2, '0')}`
-}
+const TICK_MS = 250
 
 export default function Timer() {
-  const [state, dispatch] = useReducer(reducer, undefined, createInitialState)
+  const [state, dispatch] = useReducer(reducer, undefined, () =>
+    createInitialState(loadConfig(DEFAULT_CONFIG)),
+  )
   const prevTransitionCount = useRef(state.transitionCount)
+  const prevSeconds = useRef(state.secondsLeft)
   const [flashNonce, setFlashNonce] = useState(0)
 
-  useWakeLock(state.isRunning && state.config.keepScreenOn)
+  const { phase, secondsLeft, isRunning, config } = state
+  const inSession = phase === 'round' || phase === 'rest'
+  const isUrgent = isRunning && inSession && secondsLeft > 0 && secondsLeft <= HEADS_UP_AT
+  const showControls = phase === 'idle' || phase === 'finished'
+
+  useWakeLock(isRunning && config.keepScreenOn)
 
   useEffect(() => {
     preloadSounds()
   }, [])
 
   useEffect(() => {
-    saveConfig(state.config)
-  }, [state.config])
+    saveConfig(config)
+  }, [config])
 
   useEffect(() => {
-    if (!state.isRunning) return
-    const id = setInterval(() => dispatch({ type: 'TICK' }), 1000)
-    return () => clearInterval(id)
-  }, [state.isRunning])
-
-  useEffect(() => {
-    if (prevTransitionCount.current !== state.transitionCount) {
-      playTimeUpSound(state.config.sound)
-      setFlashNonce((n) => n + 1)
-      prevTransitionCount.current = state.transitionCount
+    if (!isRunning) return
+    const tick = () => dispatch({ type: 'TICK', now: Date.now() })
+    const id = setInterval(tick, TICK_MS)
+    // Catch up immediately on return rather than waiting for the next tick.
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') tick()
     }
-  }, [state.transitionCount, state.config.sound])
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => {
+      clearInterval(id)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
+  }, [isRunning])
 
   useEffect(() => {
-    if (!state.isRunning) return
-    if (state.phase !== 'round' && state.phase !== 'rest') return
-    if (state.config.headsUpEnabled && state.secondsLeft === 10) {
+    if (prevTransitionCount.current === state.transitionCount) return
+    prevTransitionCount.current = state.transitionCount
+    playTimeUpSound(config.sound)
+    setFlashNonce((n) => n + 1)
+  }, [state.transitionCount, config.sound])
+
+  useEffect(() => {
+    const prev = prevSeconds.current
+    prevSeconds.current = secondsLeft
+    if (!isRunning || !inSession) return
+    // Only react to the clock counting down; a jump upward means a new phase.
+    if (secondsLeft >= prev) return
+    if (config.headsUpEnabled && prev > HEADS_UP_AT && secondsLeft <= HEADS_UP_AT) {
       playHeadsUpSound()
       setFlashNonce((n) => n + 1)
     }
-    if (state.secondsLeft > 0 && state.secondsLeft <= 3) {
-      playCountdownBeep()
-    }
-  }, [state.secondsLeft, state.isRunning, state.phase, state.config.headsUpEnabled])
+    if (secondsLeft > 0 && secondsLeft <= 3) playCountdownBeep()
+  }, [secondsLeft, isRunning, inSession, config.headsUpEnabled])
 
-  const phaseLabel = {
-    idle: 'Ready',
-    round: 'ROLL',
-    rest: 'REST',
-    finished: 'Done',
-  }[state.phase]
+  const phaseLabel = { idle: 'Ready', round: 'ROLL', rest: 'REST', finished: 'Done' }[phase]
+  const roundLabel =
+    phase === 'rest'
+      ? `Next: Round ${Math.min(state.currentRound + 1, config.rounds)} / ${config.rounds}`
+      : `Round ${Math.min(state.currentRound, config.rounds)} / ${config.rounds}`
 
-  const displayRound = Math.min(state.currentRound, state.config.rounds)
+  const timerClass = ['timer', `phase-${phase}`, isRunning && 'is-running', isUrgent && 'is-urgent']
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <>
       <main className="main">
-        <div className={`timer phase-${state.phase} ${state.isRunning ? 'is-running' : ''}`}>
+        <div className={timerClass}>
           {flashNonce > 0 && <div key={flashNonce} className="flash-overlay" />}
-          <div className="timer-phase">{phaseLabel}</div>
-          <div className="timer-display">{formatClock(Math.max(state.secondsLeft, 0))}</div>
-          <div className="timer-round">
-            Round {displayRound} / {state.config.rounds}
+          {/* The phase is the useful announcement; a per-second live region on
+              the digits would make screen readers talk nonstop. */}
+          <div className="timer-phase" aria-live="polite">
+            {phaseLabel}
           </div>
+          <div className="timer-display">{formatClock(secondsLeft)}</div>
+          <div className="timer-round">{roundLabel}</div>
           <div className="timer-buttons">
-            {!state.isRunning ? (
-              <button onClick={() => dispatch({ type: 'START' })}>
-                {state.phase === 'idle' || state.phase === 'finished' ? 'Start' : 'Resume'}
+            {!isRunning ? (
+              <button
+                className="btn-primary"
+                onClick={() => dispatch({ type: 'START', now: Date.now() })}
+              >
+                {showControls ? 'Start' : 'Resume'}
               </button>
             ) : (
-              <button onClick={() => dispatch({ type: 'PAUSE' })}>Pause</button>
+              <button className="btn-primary" onClick={() => dispatch({ type: 'PAUSE' })}>
+                Pause
+              </button>
             )}
-            <button onClick={() => dispatch({ type: 'RESET' })}>Reset</button>
+            <button className="btn-secondary" onClick={() => dispatch({ type: 'RESET' })}>
+              Reset
+            </button>
           </div>
         </div>
       </main>
-      {!state.isRunning && (
+      {showControls && (
         <aside className="sidebar sidebar-right">
           <Controls
-            config={state.config}
-            disabled={state.phase !== 'idle'}
-            onChange={(config) => dispatch({ type: 'SET_CONFIG', config })}
+            config={config}
+            onChange={(next) => dispatch({ type: 'SET_CONFIG', config: next })}
           />
         </aside>
       )}

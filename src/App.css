@@ -2,6 +2,7 @@
   height: 100%;
   width: 100%;
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: row;
   overflow: hidden;
@@ -23,10 +24,8 @@
 .sidebar-right {
   width: 240px;
   align-items: stretch;
-  justify-content: flex-start;
   border-right: none;
   border-left: 1px solid var(--border);
-  overflow-y: auto;
 }
 
 .gym-logo {
@@ -53,10 +52,13 @@
 .main {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   padding: 1rem;
+  /* Safety valve: the layout is sized to fit, but never hide content outright
+     if a viewport turns out shorter than expected. */
   overflow: auto;
   container-type: inline-size;
 }
@@ -65,7 +67,7 @@
   position: relative;
   width: 90%;
   max-width: 640px;
-  min-height: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -74,7 +76,7 @@
   padding: 1.5rem;
   border-radius: 1rem;
   background: var(--panel);
-  transition: background-color 0.2s ease, width 0.2s ease, max-width 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
 .timer.is-running {
@@ -94,133 +96,151 @@
 
 @keyframes flash-pulse {
   0% {
-    opacity: 0.6;
+    opacity: 0.3;
   }
   100% {
     opacity: 0;
   }
 }
 
+/* Bold, saturated phase colors so the state is readable at a glance from
+   across the mat -- the previous near-black tints were indistinguishable. */
 .timer.phase-round {
-  background: var(--panel-round);
+  background: var(--phase-round);
 }
 
 .timer.phase-rest {
-  background: var(--panel-rest);
+  background: var(--phase-rest);
 }
 
 .timer.phase-finished {
-  background: var(--panel-finished);
+  background: var(--phase-finished);
+}
+
+.timer.phase-round,
+.timer.phase-rest,
+.timer.phase-finished {
+  color: #ffffff;
+}
+
+.timer.phase-round .timer-round,
+.timer.phase-rest .timer-round,
+.timer.phase-finished .timer-round {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .timer-phase {
-  font-size: clamp(1.5rem, min(3vh, 8cqw), 2.5rem);
+  font-size: clamp(1.5rem, min(3svh, 8cqw), 2.5rem);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .timer-display {
-  font-size: clamp(4rem, min(26vh, 22cqw), 18rem);
+  font-size: clamp(3.5rem, min(26svh, 30cqw), 18rem);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
 .timer-round {
-  font-size: clamp(1.1rem, min(2.5vh, 6cqw), 1.75rem);
+  font-size: clamp(1rem, min(2.5svh, 6cqw), 1.75rem);
   color: var(--muted);
 }
 
 .timer.is-running .timer-phase {
-  font-size: clamp(2rem, min(5vh, 10cqw), 3.5rem);
+  font-size: clamp(1.75rem, min(5svh, 10cqw), 3.5rem);
 }
 
 .timer.is-running .timer-display {
-  font-size: clamp(4rem, min(40vh, 26cqw), 26rem);
+  font-size: clamp(3.5rem, min(40svh, 34cqw), 26rem);
 }
 
 .timer.is-running .timer-round {
-  font-size: clamp(1.3rem, min(3vh, 7cqw), 2.25rem);
+  font-size: clamp(1.1rem, min(3svh, 7cqw), 2.25rem);
+}
+
+/* Continuous visual warning through the final seconds, so a glance mid-roll
+   is enough -- the one-off flash at 10s is easy to miss. */
+.timer.is-urgent .timer-display {
+  color: var(--urgent);
+  animation: urgent-pulse 1s ease-in-out infinite;
+}
+
+@keyframes urgent-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timer.is-urgent .timer-display {
+    animation: none;
+  }
+  .flash-overlay {
+    animation-duration: 0.01ms;
+  }
 }
 
 .timer-buttons {
   display: flex;
   gap: 1rem;
-  margin: 0.5rem 0;
+  margin: 0.25rem 0;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .timer-buttons button {
-  font-size: 1.25rem;
-  padding: 1rem 2.5rem;
-  border-radius: 0.75rem;
-  border: none;
-  cursor: pointer;
-  background: var(--accent);
-  color: #08110d;
+  font-size: 1.15rem;
   font-weight: 600;
+  padding: 0.85rem 2.25rem;
+  border-radius: 0.75rem;
+  border: 2px solid transparent;
+  cursor: pointer;
 }
 
 .timer-buttons button:active {
   transform: scale(0.97);
 }
 
+/* Start/Pause is the primary action; Reset is deliberately quieter so it is
+   not mistaken for it at a glance. */
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.btn-secondary {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+.timer.phase-round .btn-primary,
+.timer.phase-rest .btn-primary,
+.timer.phase-finished .btn-primary {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #14161c;
+}
+
+.timer.phase-round .btn-secondary,
+.timer.phase-rest .btn-secondary,
+.timer.phase-finished .btn-secondary {
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
 .controls {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-}
-
-.controls-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  width: 100%;
-}
-
-.controls-row label {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.85rem;
-  color: var(--muted);
-  gap: 0.25rem;
-  width: 100%;
-}
-
-.controls-row input,
-.controls-row select {
-  font-size: 1rem;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--border);
-  background: var(--input-bg);
-  color: inherit;
-  width: 100%;
-}
-
-.checkbox-label {
-  flex-direction: row !important;
-  align-items: center;
-  gap: 0.5rem !important;
-  cursor: pointer;
-}
-
-.checkbox-label input[type='checkbox'] {
-  width: 1.15rem;
-  height: 1.15rem;
-}
-
-.preview-button,
-.settings-toggle {
-  width: 100%;
-  font-size: 1rem;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  background: var(--accent-muted);
-  border: none;
-  color: inherit;
+  gap: 1rem;
 }
 
 .stepper {
@@ -246,7 +266,7 @@
 
 .stepper-control button {
   font-size: 0.9rem;
-  padding: 0.4rem 0.6rem;
+  padding: 0.45rem 0.7rem;
   border-radius: 0.5rem;
   border: 1px solid var(--border);
   background: var(--input-bg);
@@ -262,6 +282,136 @@
   font-weight: 600;
 }
 
+.settings-toggle {
+  align-self: center;
+  margin-top: 0.25rem;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+/* Settings lives in a modal so it never competes with the timer for space --
+   on a phone the expanded panel simply cannot fit alongside everything else. */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal {
+  width: 100%;
+  max-width: 380px;
+  max-height: 85svh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  text-align: left;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.modal-close {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.setting-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.setting-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.setting-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.setting-control select {
+  flex: 1;
+  min-width: 0;
+}
+
+.modal select {
+  font-size: 1rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: inherit;
+}
+
+.checkbox-label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.checkbox-label input[type='checkbox'] {
+  flex-shrink: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.setting-row:has(.checkbox-label) {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.preview-button {
+  flex-shrink: 0;
+  min-width: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: var(--accent-muted);
+  color: inherit;
+  cursor: pointer;
+}
+
 button:disabled,
 input:disabled,
 select:disabled {
@@ -269,21 +419,21 @@ select:disabled {
   cursor: not-allowed;
 }
 
-/* Phone/narrow portrait: stack into a single column (logo/clock, timer, controls) since width is scarce */
+/* Phone portrait: one column that fills the viewport exactly -- header,
+   timer (absorbs the slack), controls. Nothing scrolls. */
 @media (max-width: 720px) and (orientation: portrait) {
   .app {
     flex-direction: column;
-    height: auto;
-    min-height: 100vh;
-    overflow: visible;
   }
 
   .sidebar {
     width: 100%;
     flex-direction: row;
+    justify-content: center;
+    gap: 1rem;
     border-right: none;
     border-bottom: 1px solid var(--border);
-    padding: 1rem;
+    padding: 0.6rem 1rem;
   }
 
   .sidebar-right {
@@ -291,40 +441,23 @@ select:disabled {
     border-bottom: none;
     border-top: 1px solid var(--border);
     border-left: none;
-    max-height: 50vh;
+    padding: 0.75rem 1rem 1rem;
   }
 
   .gym-logo {
-    max-width: 70px;
-  }
-
-  .main {
-    padding: 1rem 0.5rem;
-  }
-}
-
-/* Phone landscape: width is fine but height is scarce, so keep the side sidebars but shrink them */
-@media (orientation: landscape) and (max-height: 500px) {
-  .sidebar {
-    width: 130px;
-    gap: 0.75rem;
-    padding: 0.75rem 0.5rem;
-  }
-
-  .sidebar-right {
-    width: 150px;
-  }
-
-  .gym-logo {
-    max-width: 60px;
+    max-width: 52px;
   }
 
   .clock-time {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
   }
 
   .clock-date {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
+  }
+
+  .main {
+    padding: 0.75rem 0.5rem;
   }
 
   .timer {
@@ -333,19 +466,85 @@ select:disabled {
   }
 
   .timer-display {
-    font-size: clamp(3rem, min(20vh, 16cqw), 10rem);
+    font-size: clamp(3.5rem, min(22svh, 34cqw), 12rem);
   }
 
   .timer.is-running .timer-display {
-    font-size: clamp(3rem, min(28vh, 20cqw), 14rem);
+    font-size: clamp(3.5rem, min(34svh, 40cqw), 16rem);
   }
 
   .timer-buttons button {
-    padding: 0.6rem 1.5rem;
-    font-size: 1rem;
+    padding: 0.7rem 1.6rem;
+    font-size: 1.05rem;
+  }
+
+  /* Label beside the control instead of above it, to buy back vertical room. */
+  .stepper {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .stepper-control {
+    width: auto;
+    flex-shrink: 0;
   }
 
   .controls {
+    gap: 0.6rem;
+  }
+}
+
+/* Phone landscape: width is fine but height is scarce, so keep the side
+   sidebars and shrink them. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .sidebar {
+    width: 130px;
     gap: 0.75rem;
+    padding: 0.75rem 0.5rem;
+  }
+
+  .sidebar-right {
+    width: 165px;
+  }
+
+  .gym-logo {
+    max-width: 58px;
+  }
+
+  .clock-time {
+    font-size: 1.05rem;
+  }
+
+  .clock-date {
+    font-size: 0.7rem;
+  }
+
+  .timer {
+    padding: 0.75rem;
+    gap: 0.4rem;
+  }
+
+  .timer-display {
+    font-size: clamp(2.5rem, min(22svh, 18cqw), 10rem);
+  }
+
+  .timer.is-running .timer-display {
+    font-size: clamp(2.5rem, min(30svh, 22cqw), 14rem);
+  }
+
+  .timer-buttons button {
+    padding: 0.55rem 1.35rem;
+    font-size: 0.95rem;
+  }
+
+  .controls {
+    gap: 0.6rem;
+  }
+
+  .stepper-control button {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.85rem;
   }
 }
