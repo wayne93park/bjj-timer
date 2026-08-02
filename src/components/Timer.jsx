@@ -158,30 +158,36 @@ export default function Timer() {
   const displayRound = Math.min(state.currentRound, state.config.rounds)
 
   return (
-    <div className={`timer phase-${state.phase} ${state.isRunning ? 'is-running' : ''}`}>
-      {flashNonce > 0 && <div key={flashNonce} className="flash-overlay" />}
-      <div className="timer-phase">{phaseLabel}</div>
-      <div className="timer-display">{formatClock(Math.max(state.secondsLeft, 0))}</div>
-      <div className="timer-round">
-        Round {displayRound} / {state.config.rounds}
-      </div>
-      <div className="timer-buttons">
-        {!state.isRunning ? (
-          <button onClick={() => dispatch({ type: 'START' })}>
-            {state.phase === 'idle' || state.phase === 'finished' ? 'Start' : 'Resume'}
-          </button>
-        ) : (
-          <button onClick={() => dispatch({ type: 'PAUSE' })}>Pause</button>
-        )}
-        <button onClick={() => dispatch({ type: 'RESET' })}>Reset</button>
-      </div>
+    <>
+      <main className="main">
+        <div className={`timer phase-${state.phase} ${state.isRunning ? 'is-running' : ''}`}>
+          {flashNonce > 0 && <div key={flashNonce} className="flash-overlay" />}
+          <div className="timer-phase">{phaseLabel}</div>
+          <div className="timer-display">{formatClock(Math.max(state.secondsLeft, 0))}</div>
+          <div className="timer-round">
+            Round {displayRound} / {state.config.rounds}
+          </div>
+          <div className="timer-buttons">
+            {!state.isRunning ? (
+              <button onClick={() => dispatch({ type: 'START' })}>
+                {state.phase === 'idle' || state.phase === 'finished' ? 'Start' : 'Resume'}
+              </button>
+            ) : (
+              <button onClick={() => dispatch({ type: 'PAUSE' })}>Pause</button>
+            )}
+            <button onClick={() => dispatch({ type: 'RESET' })}>Reset</button>
+          </div>
+        </div>
+      </main>
       {!state.isRunning && (
-        <Controls
-          config={state.config}
-          disabled={state.phase !== 'idle'}
-          onChange={(config) => dispatch({ type: 'SET_CONFIG', config })}
-        />
+        <aside className="sidebar sidebar-right">
+          <Controls
+            config={state.config}
+            disabled={state.phase !== 'idle'}
+            onChange={(config) => dispatch({ type: 'SET_CONFIG', config })}
+          />
+        </aside>
       )}
-    </div>
+    </>
   )
 }

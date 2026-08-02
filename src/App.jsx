@@ -10,9 +10,7 @@ function App() {
         <img src={logo} alt="King Jiu Jitsu logo" className="gym-logo" />
         <Clock />
       </aside>
-      <main className="main">
-        <Timer />
-      </main>
+      <Timer />
     </div>
   )
 }
