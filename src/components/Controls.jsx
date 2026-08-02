@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { TIME_UP_SOUND_OPTIONS, playTimeUpSound, playHeadsUpSound } from '../utils/sound'
 
 const STEP_SECONDS = 30
@@ -30,6 +31,8 @@ function DurationStepper({ label, seconds, min, disabled, onChange }) {
 }
 
 export default function Controls({ config, onChange, disabled }) {
+  const [showSettings, setShowSettings] = useState(false)
+
   function update(field, value) {
     onChange({ ...config, [field]: value })
   }
@@ -64,57 +67,67 @@ export default function Controls({ config, onChange, disabled }) {
             onChange={(e) => update('rounds', Math.max(1, Number(e.target.value) || 1))}
           />
         </label>
-        <label>
-          Time's Up Sound
-          <select value={config.sound} onChange={(e) => update('sound', e.target.value)}>
-            {TIME_UP_SOUND_OPTIONS.map((opt) => (
-              <option key={opt.id} value={opt.id}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button
-          type="button"
-          className="preview-button"
-          disabled={config.sound === 'none'}
-          onClick={() => playTimeUpSound(config.sound)}
-        >
-          ▶ Preview
+        <button type="button" className="settings-toggle" onClick={() => setShowSettings((s) => !s)}>
+          ⚙ Settings
         </button>
       </div>
 
-      <div className="controls-row">
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
-            checked={config.headsUpEnabled}
-            disabled={disabled}
-            onChange={(e) => update('headsUpEnabled', e.target.checked)}
-          />
-          10s Heads-Up Sound
-        </label>
-        <button
-          type="button"
-          className="preview-button"
-          disabled={!config.headsUpEnabled}
-          onClick={() => playHeadsUpSound()}
-        >
-          ▶ Preview
-        </button>
-      </div>
+      {showSettings && (
+        <>
+          <div className="controls-row">
+            <label>
+              Time's Up Sound
+              <select value={config.sound} onChange={(e) => update('sound', e.target.value)}>
+                {TIME_UP_SOUND_OPTIONS.map((opt) => (
+                  <option key={opt.id} value={opt.id}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              className="preview-button"
+              disabled={config.sound === 'none'}
+              onClick={() => playTimeUpSound(config.sound)}
+            >
+              ▶ Preview
+            </button>
+          </div>
 
-      <div className="controls-row">
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
-            checked={config.keepScreenOn}
-            disabled={disabled}
-            onChange={(e) => update('keepScreenOn', e.target.checked)}
-          />
-          Keep Screen On While Running
-        </label>
-      </div>
+          <div className="controls-row">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={config.headsUpEnabled}
+                disabled={disabled}
+                onChange={(e) => update('headsUpEnabled', e.target.checked)}
+              />
+              10s Heads-Up Sound
+            </label>
+            <button
+              type="button"
+              className="preview-button"
+              disabled={!config.headsUpEnabled}
+              onClick={() => playHeadsUpSound()}
+            >
+              ▶ Preview
+            </button>
+          </div>
+
+          <div className="controls-row">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={config.keepScreenOn}
+                disabled={disabled}
+                onChange={(e) => update('keepScreenOn', e.target.checked)}
+              />
+              Keep Screen On While Running
+            </label>
+          </div>
+        </>
+      )}
     </div>
   )
 }
