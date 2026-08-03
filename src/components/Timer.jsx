@@ -8,6 +8,7 @@ import {
   createInitialState,
   formatClock,
   reducer,
+  totalRemainingSeconds,
 } from '../utils/timerReducer'
 import { useWakeLock } from '../hooks/useWakeLock'
 
@@ -76,6 +77,7 @@ export default function Timer() {
     phase === 'rest'
       ? `Next: Round ${Math.min(state.currentRound + 1, config.rounds)} / ${config.rounds}`
       : `Round ${Math.min(state.currentRound, config.rounds)} / ${config.rounds}`
+  const totalLabel = phase === 'idle' ? 'Total Time' : 'Time Remaining'
 
   const timerClass = ['timer', `phase-${phase}`, isRunning && 'is-running', isUrgent && 'is-urgent']
     .filter(Boolean)
@@ -93,6 +95,11 @@ export default function Timer() {
           </div>
           <div className="timer-display">{formatClock(secondsLeft)}</div>
           <div className="timer-round">{roundLabel}</div>
+          {phase !== 'finished' && (
+            <div className="timer-total">
+              {totalLabel}: {formatClock(totalRemainingSeconds(state))}
+            </div>
+          )}
           <div className="timer-buttons">
             {!isRunning ? (
               <button
@@ -104,6 +111,11 @@ export default function Timer() {
             ) : (
               <button className="btn-primary" onClick={() => dispatch({ type: 'PAUSE' })}>
                 Pause
+              </button>
+            )}
+            {isRunning && (
+              <button className="btn-skip" onClick={() => dispatch({ type: 'SKIP', now: Date.now() })}>
+                Skip
               </button>
             )}
             <button className="btn-secondary" onClick={() => dispatch({ type: 'RESET' })}>

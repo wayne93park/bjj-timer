@@ -129,6 +129,17 @@
   color: rgba(255, 255, 255, 0.85);
 }
 
+.timer-total {
+  font-size: clamp(0.85rem, min(2svh, 4.5cqw), 1.1rem);
+  color: var(--muted);
+}
+
+.timer.phase-round .timer-total,
+.timer.phase-rest .timer-total,
+.timer.phase-finished .timer-total {
+  color: rgba(255, 255, 255, 0.7);
+}
+
 .timer-phase {
   font-size: clamp(1.5rem, min(3svh, 8cqw), 2.5rem);
   font-weight: 700;
@@ -221,6 +232,14 @@
   color: var(--muted);
 }
 
+/* Skip is a common, non-destructive action -- give it more presence than
+   Reset (outline-only) but keep it under Pause. */
+.btn-skip {
+  background: var(--accent-muted);
+  border-color: var(--accent-muted);
+  color: var(--text);
+}
+
 .timer.phase-round .btn-primary,
 .timer.phase-rest .btn-primary,
 .timer.phase-finished .btn-primary {
@@ -234,6 +253,14 @@
 .timer.phase-finished .btn-secondary {
   color: rgba(255, 255, 255, 0.9);
   border-color: rgba(255, 255, 255, 0.45);
+}
+
+.timer.phase-round .btn-skip,
+.timer.phase-rest .btn-skip,
+.timer.phase-finished .btn-skip {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
 }
 
 .controls {
