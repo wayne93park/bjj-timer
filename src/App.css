@@ -553,9 +553,15 @@ select:disabled {
     font-size: clamp(3.5rem, min(34svh, 40cqw), 16rem);
   }
 
+  /* Tight enough that Pause + Skip + Reset stay on one row down to ~360px
+     wide phones; wrapping would eat into the tight vertical budget. */
+  .timer-buttons {
+    gap: 0.6rem;
+  }
+
   .timer-buttons button {
-    padding: 0.7rem 1.6rem;
-    font-size: 1.05rem;
+    padding: 0.7rem 1.05rem;
+    font-size: 1rem;
   }
 
   /* Label beside the control instead of above it, to buy back vertical room. */
@@ -590,7 +596,7 @@ select:disabled {
   }
 
   .gym-logo {
-    max-width: 96px;
+    max-width: 112px;
   }
 
   .clock-time {

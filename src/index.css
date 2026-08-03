@@ -1,13 +1,12 @@
 :root {
   --text: #e5e7eb;
-  --text-h: #f9fafb;
-  --bg: #0a0a0c;
-  --border: #33353e;
+  --bg: #0f1014;
+  --border: #3d414c;
   --muted: #9ca3af;
-  --panel: #16171d;
-  --input-bg: #1f2028;
+  --panel: #22242d;
+  --input-bg: #2c2f39;
   --accent: #e63a3f;
-  --accent-muted: #2e303a;
+  --accent-muted: #363a45;
 
   /* Saturated enough to read the phase by color alone from across a mat. */
   --phase-round: #c0161d;
@@ -16,7 +15,6 @@
   --urgent: #ffd166;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
   color-scheme: dark;

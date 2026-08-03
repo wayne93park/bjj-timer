@@ -1,5 +1,5 @@
 import './App.css'
-import logo from './assets/bjj_timer_logo.png'
+import logo from './assets/bjj_timer_logo_dark.png'
 import Clock from './components/Clock'
 import Timer from './components/Timer'
 
