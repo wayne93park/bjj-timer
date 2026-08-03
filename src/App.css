@@ -30,7 +30,7 @@
 
 .gym-logo {
   width: 100%;
-  max-width: 160px;
+  max-width: 180px;
   height: auto;
 }
 
@@ -123,18 +123,18 @@
   background-color: var(--phase-finished);
 }
 
-/* A faint watermark of the gym crest gives the idle/setup screen -- the one
-   people see most often -- its own identity instead of looking like an
+/* A faint watermark of the stopwatch mark gives the idle/setup screen -- the
+   one people see most often -- its own identity instead of looking like an
    empty version of the running states. */
 .timer.phase-idle::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 0;
-  background-image: url('/gym_logo.webp');
+  background-image: url('/icons/icon-glyph.png');
   background-repeat: no-repeat;
-  background-position: center 35%;
-  background-size: min(65cqw, 50svh);
+  background-position: center;
+  background-size: min(55cqw, 42svh);
   opacity: 0.08;
   pointer-events: none;
 }
@@ -520,8 +520,12 @@ select:disabled {
     padding: 0.75rem 1rem 1rem;
   }
 
+  /* The wordmark is a wide horizontal lockup (~4:1), so in this row layout
+     it's constrained by height, not width, unlike the square mark below. */
   .gym-logo {
-    max-width: 52px;
+    width: auto;
+    height: 34px;
+    max-width: 150px;
   }
 
   .clock-time {
@@ -586,7 +590,7 @@ select:disabled {
   }
 
   .gym-logo {
-    max-width: 58px;
+    max-width: 96px;
   }
 
   .clock-time {

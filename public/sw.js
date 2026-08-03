@@ -2,7 +2,7 @@
 // Build assets are content-hashed and therefore immutable, so they are safe
 // to serve cache-first. The HTML shell is network-first so deploys land as
 // soon as the device is online again.
-const CACHE = 'bjj-timer-v1'
+const CACHE = 'bjj-timer-v2'
 const SHELL = '/'
 
 self.addEventListener('install', (event) => {
