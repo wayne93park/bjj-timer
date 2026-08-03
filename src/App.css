@@ -75,8 +75,14 @@
   gap: 1rem;
   padding: 1.5rem;
   border-radius: 1rem;
-  background: var(--panel);
-  transition: background-color 0.2s ease;
+  /* A constant diagonal sheen sits on top of whichever solid color is
+     active. Keeping the gradient itself fixed and only ever transitioning
+     background-color lets the phase change crossfade smoothly -- browsers
+     don't interpolate between two different gradients. */
+  background-color: var(--panel);
+  background-image: linear-gradient(155deg, rgba(255, 255, 255, 0.09) 0%, rgba(0, 0, 0, 0.22) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: background-color 0.6s ease;
 }
 
 .timer.is-running {
@@ -106,15 +112,40 @@
 /* Bold, saturated phase colors so the state is readable at a glance from
    across the mat -- the previous near-black tints were indistinguishable. */
 .timer.phase-round {
-  background: var(--phase-round);
+  background-color: var(--phase-round);
 }
 
 .timer.phase-rest {
-  background: var(--phase-rest);
+  background-color: var(--phase-rest);
 }
 
 .timer.phase-finished {
-  background: var(--phase-finished);
+  background-color: var(--phase-finished);
+}
+
+/* A faint watermark of the gym crest gives the idle/setup screen -- the one
+   people see most often -- its own identity instead of looking like an
+   empty version of the running states. */
+.timer.phase-idle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url('/gym_logo.webp');
+  background-repeat: no-repeat;
+  background-position: center 35%;
+  background-size: min(65cqw, 50svh);
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.timer.phase-idle .timer-phase,
+.timer.phase-idle .timer-display,
+.timer.phase-idle .timer-round,
+.timer.phase-idle .timer-total,
+.timer.phase-idle .timer-buttons {
+  position: relative;
+  z-index: 1;
 }
 
 .timer.phase-round,
@@ -154,6 +185,23 @@
   line-height: 1;
 }
 
+/* A brief pulse + glow at the moment of a phase change, so the transition
+   feels like a deliberate beat rather than the digits just changing. */
+.timer-display.pulse {
+  animation: digit-pulse 0.5s ease-out;
+}
+
+@keyframes digit-pulse {
+  0% {
+    transform: scale(1.08);
+    text-shadow: 0 0 28px currentColor;
+  }
+  100% {
+    transform: scale(1);
+    text-shadow: 0 0 0 transparent;
+  }
+}
+
 .timer-round {
   font-size: clamp(1rem, min(2.5svh, 6cqw), 1.75rem);
   color: var(--muted);
@@ -189,7 +237,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .timer.is-urgent .timer-display {
+  .timer.is-urgent .timer-display,
+  .timer-display.pulse {
     animation: none;
   }
   .flash-overlay {

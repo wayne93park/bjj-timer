@@ -93,7 +93,12 @@ export default function Timer() {
           <div className="timer-phase" aria-live="polite">
             {phaseLabel}
           </div>
-          <div className="timer-display">{formatClock(secondsLeft)}</div>
+          <div
+            key={flashNonce}
+            className={`timer-display${flashNonce > 0 ? ' pulse' : ''}`}
+          >
+            {formatClock(secondsLeft)}
+          </div>
           <div className="timer-round">{roundLabel}</div>
           {phase !== 'finished' && (
             <div className="timer-total">
