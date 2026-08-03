@@ -16,6 +16,11 @@
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
 
+  /* Smaller on the mobile breakpoints (see App.css) -- those layouts are
+     fitted exactly to the viewport with no scroll, so padding there is
+     taken out of an already-tight budget. */
+  --app-padding: 16px;
+
   font: 18px/145% var(--sans);
   color-scheme: dark;
   color: var(--text);
@@ -42,8 +47,9 @@ body {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
-    env(safe-area-inset-left);
+  padding: calc(env(safe-area-inset-top) + var(--app-padding))
+    calc(env(safe-area-inset-right) + var(--app-padding)) calc(env(safe-area-inset-bottom) + var(--app-padding))
+    calc(env(safe-area-inset-left) + var(--app-padding));
 }
 
 button {

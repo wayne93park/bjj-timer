@@ -498,6 +498,12 @@ select:disabled {
 /* Phone portrait: one column that fills the viewport exactly -- header,
    timer (absorbs the slack), controls. Nothing scrolls. */
 @media (max-width: 720px) and (orientation: portrait) {
+  :root {
+    /* Kept minimal -- the button row (Pause/Skip/Reset) was already fitted
+       to a 360px-wide phone with limited margin. */
+    --app-padding: 6px;
+  }
+
   .app {
     flex-direction: column;
   }
@@ -585,6 +591,10 @@ select:disabled {
 /* Phone landscape: width is fine but height is scarce, so keep the side
    sidebars and shrink them. */
 @media (orientation: landscape) and (max-height: 500px) {
+  :root {
+    --app-padding: 6px;
+  }
+
   .sidebar {
     width: 130px;
     gap: 0.75rem;
